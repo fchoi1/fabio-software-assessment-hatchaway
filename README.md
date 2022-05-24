@@ -5,16 +5,25 @@ This is a software application to get generate report carsd.
 
 ## Installation
 
-Navigate to root directiory and run the following command
+Navigate to root directiory and run the following command, 
 
 ```
 npm install
 ```
 
 ## Usage
-This will start the backend Express server. The default port is configured to 3001 for localhost
+
+In root directory run the command below. It will require multiple inputs.
+This will generate a report card.
 ```
-npm start
+node index {path-to-courses-file} {path-to-students-file} {path-to-tests-file} {path-to-marks-file}
+{path-to-output-file}
+```
+
+Example command:
+
+```
+node index.js Example1/courses.csv Example1/students.csv Example1/tests.csv Example1/marks.csv output.json
 ```
 
 ## Tests
