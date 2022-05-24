@@ -22,13 +22,86 @@ describe('Testing utility functions', () => {
   });
 
   test('Able to read a file', async () => {
-    const data = await readFile('testss.csv');
-    console.log(data);
+    const data = await readFile('__test__/tests.csv');
+    expect(data).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: expect.any(String),
+          course_id: expect.any(String),
+          weight: expect.any(String)
+        })
+      ])
+    );
   });
-});
 
-describe('Testing Valid Student Report Card', () => {
-  test('Valid JSON format', () => {});
+  test('Able to write to json file', async () => {
+    const file1 = './__test__/testFile.json';
 
-  test('Recieved tag error for no tag supplied', () => {});
+    try {
+      fs.unlinkSync(file1);
+    } catch (err) {
+      console.error(err);
+    }
+    await writeJSONfile(file1, { test: 'testing' });
+    expect(fs.existsSync(file1)).toBe(true);
+  });
+
+  test('Able to change id type', async () => {
+    const objList = [{ id: '1' }, { id: '2' }, { id: '3' }];
+    expect(changeIdType(objList)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: expect.any(Number)
+        })
+      ])
+    );
+  });
+
+  test('Able to trim teacher name', async () => {
+    const objList = [
+      { teacher: '  test1' },
+      { teacher: 'test2  ' },
+      { teacher: 'test3' }
+    ];
+
+    const newObjList = trimTeacher(objList);
+    expect(newObjList).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          teacher: objList[0].teacher.trim()
+        }),
+        expect.objectContaining({
+          teacher: objList[1].teacher.trim()
+        }),
+        expect.objectContaining({
+          teacher: objList[2].teacher.trim()
+        })
+      ])
+    );
+  });
+
+  test('Able generate report card object', async () => {
+    const marks = [{ test_id: 1, student_id: 1, mark: 90 }];
+    const students = [{ id: 1, name: 'student' }];
+    const tests = [{ id: 1, course_id: 1, weight: 100 }];
+    const courses = [{ id: 1, name: 'course', teacher: 'teacher' }];
+    const report = calculateAverage(marks, students, tests, courses);
+
+    expect(report).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: expect.any(Number),
+          name: expect.any(String),
+          courses: expect.arrayContaining([
+            expect.objectContaining({
+              id: expect.any(Number),
+              name: expect.any(String),
+              teacher: expect.any(String),
+              courseAverage: expect.any(Number)
+            })
+          ])
+        })
+      ])
+    );
+  });
 });

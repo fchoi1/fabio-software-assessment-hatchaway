@@ -28,16 +28,14 @@ const readFile = (filename) => {
         resolve(data);
       })
       .on('error', function (err) {
-        // handle error here
-        console.log('error here', err);
-        reject(error);
+        reject(err);
       });
   });
 };
 
-const writeJSONfile = (filename, data) => {
+const writeJSONfile = async (filename, data) => {
   const JSONdata = JSON.stringify(data, null, 2);
-  fs.writeFileSync(filename, JSONdata);
+  await fs.writeFileSync(filename, JSONdata);
 };
 
 const parseArgs = () => {
@@ -124,24 +122,31 @@ const calculateAverage = (marks, students, tests, courses) => {
 const generateReport = async () => {
   const { courseFile, studentFile, testsFile, marksFile, outputFile } =
     parseArgs();
+  try {
+    let courseData = await readFile(courseFile);
+    let studentData = await readFile(studentFile);
 
-  let courseData = await readFile(courseFile);
-  let studentData = await readFile(studentFile);
+    let testData = await readFile(testsFile);
 
-  let testData = await readFile(testsFile);
+    let markData = await readFile(marksFile);
 
-  let markData = await readFile(marksFile);
+    // studentData = changeIdType(studentData);
+    courseData = trimTeacher(courseData);
 
-  // studentData = changeIdType(studentData);
-  courseData = trimTeacher(courseData);
-
-  reportCard = calculateAverage(
-    markData,
-    changeIdType(studentData),
-    testData,
-    changeIdType(courseData)
-  );
-  writeJSONfile(outputFile, { students: reportCard });
+    reportCard = calculateAverage(
+      markData,
+      changeIdType(studentData),
+      testData,
+      changeIdType(courseData)
+    );
+    writeJSONfile(outputFile, { students: reportCard });
+  } catch (err) {
+    if (err.code === 'ENOENT') {
+      console.log('File not found!');
+    } else {
+      throw err;
+    }
+  }
 };
 
 module.exports = {
